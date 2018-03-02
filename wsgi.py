@@ -550,14 +550,14 @@ def dashboard():
 
       rows = cur.fetchall()
       print(rows)
-      dataframe = pd.read_sql_query("select * from TICKETS", con)
+      dataframe = pd.read_sql_query("select * from TICKETS where NAME='" + username + "'" , con)
 
       print(dataframe['CATEGORY'])
       print(dataframe['CATEGORY'].value_counts())
 
       fig = plt.figure()    
       dataframe.groupby('CATEGORY').size().plot(kind='bar')
-      path='static/media/graph.png'
+      path='static/media/graph_' +username + '.png'
 
       print(path)
       fig.savefig(path)
