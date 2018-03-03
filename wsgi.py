@@ -563,7 +563,20 @@ def dashboard():
       fig.savefig(path)
 
       print("path ",path)
-      return render_template("dashboard.html",path=path,rows=rows)
+      open_tickets=get_tickets(email)
+#      logging.warning("open_tickets ", open_tickets)
+      print(json.loads(open_tickets.content))
+      v=str(json.loads(open_tickets.content))
+      result = re.sub("<.*?>", "", v)
+      print(result)
+      dataframe=pd.DataFrame(eval(result))
+      print(" 1234567"  ,dataframe)
+#      print(pd.DataFrame(json.loads(open_tickets.content)))
+      dataframe=dataframe.loc[:,('id','type','priority','description')]
+      data_frame_html=dataframe.to_html()
+#      print(data_frame_html)
+      
+      return render_template("dashboard.html",path=path,rows=rows,tables=data_frame_html)
   
 #def dashboard():
 #      con = create_connection()
