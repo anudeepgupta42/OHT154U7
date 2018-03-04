@@ -2,11 +2,10 @@
 
 from flask import Flask, render_template, request, session, redirect,url_for
 from sqlite3 import Error
-import json,apiai, requests, datetime, sqlite3
+import json,apiai, requests, datetime, sqlite3, re
 import http.client, urllib.request, urllib.parse, urllib.error
 import pandas as pd
 import matplotlib.pyplot as plt
-import traceback, os
 application = Flask(__name__, template_folder="templates",static_url_path="/static")
 #application.config['DEBUG'] = True
 
@@ -404,10 +403,12 @@ def table_creation():
     conn = create_connection()
     conn.execute('CREATE TABLE IF NOT EXISTS TICKETS (TICKET_ID INTEGER PRIMARY KEY AUTOINCREMENT, NAME CHAR(100), CATEGORY CHAR(10), QUERY CHAR(100), VMNAME CHAR(100), ACTION CHAR(100), USER CHAR(100), SHORT_DESC CHAR(100), VM_SIZE CHAR(100), ENV CHAR(100))')
     conn.execute('CREATE TABLE IF NOT EXISTS LOGIN_CREDENTIALS (USERNAME CHAR(200), PASSWORD CHAR(100), EMAIL CHAR(10))')
-    name = 'dummy'
+    #name = 'dummy'
     query = 'testing'
     tkt_type = 'L0'
-    conn.execute("INSERT INTO TICKETS (NAME, QUERY,CATEGORY) VALUES (?,?,?)",(name, query,tkt_type) )
+    conn.execute("INSERT INTO TICKETS (NAME, QUERY,CATEGORY) VALUES (?,?,?)",('admin', query, tkt_type) )
+    conn.execute("INSERT INTO TICKETS (NAME, QUERY,CATEGORY) VALUES (?,?,?)",('user1', query, tkt_type) )
+    conn.execute("INSERT INTO TICKETS (NAME, QUERY,CATEGORY) VALUES (?,?,?)",('user2', query, tkt_type) )
     conn.commit()
     conn.execute("INSERT INTO LOGIN_CREDENTIALS (USERNAME, PASSWORD ,EMAIL) VALUES (?,?,?)",('admin', 'admin','admin@gmail.com') )
     conn.execute("INSERT INTO LOGIN_CREDENTIALS (USERNAME, PASSWORD ,EMAIL) VALUES (?,?,?)",('user1', 'ted@123','user1@gmail.com') )
@@ -546,6 +547,7 @@ def dashboard():
       con.row_factory = sqlite3.Row
       cur = con.cursor()
       username = session.get('username')
+      email= session.get('email')
       cur.execute("select * from VM_INSTANCE WHERE USER_NAME=?",(username,))
 
       rows = cur.fetchall()
@@ -564,17 +566,11 @@ def dashboard():
 
       print("path ",path)
       open_tickets=get_tickets(email)
-#      logging.warning("open_tickets ", open_tickets)
-      print(json.loads(open_tickets.content))
-      v=str(json.loads(open_tickets.content))
-      result = re.sub("<.*?>", "", v)
-      print(result)
-      dataframe=pd.DataFrame(eval(result))
+      dataframe=pd.DataFrame(open_tickets.json())
       print(" 1234567"  ,dataframe)
-#      print(pd.DataFrame(json.loads(open_tickets.content)))
-      dataframe=dataframe.loc[:,('id','type','priority','description')]
+
+      dataframe=dataframe.loc[:,('id','type','priority','description_text')]
       data_frame_html=dataframe.to_html()
-#      print(data_frame_html)
       
       return render_template("dashboard.html",path=path,rows=rows,tables=data_frame_html)
   
