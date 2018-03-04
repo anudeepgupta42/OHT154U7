@@ -2,7 +2,7 @@
 
 from flask import Flask, render_template, request, session, redirect,url_for
 from sqlite3 import Error
-import json,apiai, requests, datetime, sqlite3, re
+import json,apiai, requests, datetime, sqlite3
 import http.client, urllib.request, urllib.parse, urllib.error
 import pandas as pd
 import matplotlib.pyplot as plt
