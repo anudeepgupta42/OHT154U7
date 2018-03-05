@@ -112,7 +112,7 @@ def get_bot_response():
         
         print("In update ticket")
         ticket_id=str(obj['result']['parameters']['ticketid'])
-        tkt_priority=str(obj['result']['parameters']['priority'][0])
+        tkt_priority=str(obj['result']['parameters']['priority'])
        
 
         update=str(obj['result']['parameters']['update'])
